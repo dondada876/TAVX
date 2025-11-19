@@ -1,0 +1,63 @@
+{
+  "name": "tavx-monorepo",
+  "version": "1.0.0",
+  "description": "TAV-X Tesla Autonomous Tour & Rental Platform",
+  "private": true,
+  "workspaces": [
+    "services/*"
+  ],
+  "scripts": {
+    "setup": "./infrastructure/scripts/setup-dev.sh",
+    "teardown": "./infrastructure/scripts/teardown-dev.sh",
+    "install:all": "npm install && npm run install:services",
+    "install:services": "for dir in services/*/; do (cd \"$dir\" && npm install); done",
+    "build:all": "npm run build:shared && npm run build:services",
+    "build:shared": "cd services/shared && npm run build",
+    "build:services": "for dir in services/*/; do if [ -f \"$dir/package.json\" ] && [ \"$dir\" != \"services/shared/\" ]; then (cd \"$dir\" && npm run build); fi; done",
+    "test:all": "for dir in services/*/; do if [ -f \"$dir/package.json\" ]; then (cd \"$dir\" && npm test); fi; done",
+    "lint:all": "for dir in services/*/; do if [ -f \"$dir/package.json\" ]; then (cd \"$dir\" && npm run lint); fi; done",
+    "format:all": "for dir in services/*/; do if [ -f \"$dir/package.json\" ]; then (cd \"$dir\" && npm run format); fi; done",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "docker:ps": "docker-compose ps",
+    "docker:restart": "docker-compose restart",
+    "clean": "find . -name 'node_modules' -type d -prune -exec rm -rf '{}' + && find . -name 'dist' -type d -prune -exec rm -rf '{}' +"
+  },
+  "keywords": [
+    "tavx",
+    "tesla",
+    "rental",
+    "tour",
+    "autonomous",
+    "gps"
+  ],
+  "author": "TAV-X Team",
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^6.15.0",
+    "@typescript-eslint/parser": "^6.15.0",
+    "eslint": "^8.55.0",
+    "prettier": "^3.1.1",
+    "husky": "^8.0.3",
+    "lint-staged": "^15.2.0"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "services/**/*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,yml,yaml}": [
+      "prettier --write"
+    ]
+  }
+}
